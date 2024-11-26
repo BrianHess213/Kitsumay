@@ -15,11 +15,12 @@ function urlFor(source: SanityImageSource) {
 }
 
 
-export default async function PostPage({
-    params,
-}: {
-    params: { slug: string };
-}) {
+export default async function PostPage(
+    props: {
+        params: Promise<{ slug: string }>;
+    }
+) {
+    const params = await props.params;
     const post = await client.fetch<SanityDocument>(POST_QUERY, params);
 
 
