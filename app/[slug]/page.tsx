@@ -47,7 +47,7 @@ export default async function PostPage(
 
             <h1 id="blog" className="text-4xl font-bold mb-8">{post.title}</h1>
             <div className="prose">
-                <p>Published: {new Date(post.publishedAt).toLocaleDateString()}</p>
+                <p className="py-10">Published: {new Date(post.publishedAt).toLocaleDateString()}</p>
                 {Array.isArray(post.body) && <PortableText value={post.body} components={{ types: { image: ImageComponent, }, }} />}
             </div>
         </main>
