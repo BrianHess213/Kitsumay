@@ -23,7 +23,9 @@ body {
 @layer base {
   h1 {
     @apply text-6xl;
+   
   }
+
   h2 {
     @apply text-5xl;
   }
@@ -38,6 +40,10 @@ body {
     }
   h6 {
       @apply text-xl;
+    }
+
+    a {
+      @apply text-blue-400 italic;
     }
   
 }
