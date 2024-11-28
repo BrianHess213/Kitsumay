@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_ct3mvffef680ok0bafmg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "book",
+          "column": {
+            "name": "editor",
+            "type": "json",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_ct3mvffef680ok0bafmg",
+  "parent": "mig_ct3mv5vef680ok0baflg",
+  "schema": "public",
+  "startedAt": "2024-11-27T19:15:09.795088Z"
+}

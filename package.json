@@ -21,6 +21,7 @@
     "@sanity/icons": "^3.4.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/vision": "^3.64.3",
+    "@xata.io/client": "^0.0.0-next.va121e4207b94bfe0a3c025fc00b247b923880930",
     "axios": "^1.7.8",
     "editorjs-alert": "^1.1.4",
     "editorjs-header-with-alignment": "^1.0.1",
@@ -31,6 +32,7 @@
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
     "sanity": "^3.64.3",
+    "sanity-plugin-json-input": "^0.1.0",
     "simple-image-editorjs": "^1.4.0",
     "styled-components": "^6.1.13"
   },
