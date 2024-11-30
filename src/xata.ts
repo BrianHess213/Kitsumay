@@ -26,8 +26,24 @@ const tables = [
     },
     columns: [
       {
+        name: "chapter",
+        type: "text",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
         name: "editor",
         type: "json",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "title",
+        type: "text",
         notNull: false,
         unique: false,
         defaultValue: null,

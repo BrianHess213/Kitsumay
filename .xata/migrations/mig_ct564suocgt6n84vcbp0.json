@@ -1,0 +1,19 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_ct564suocgt6n84vcbp0",
+    "operations": [
+      {
+        "drop_column": {
+          "table": "book",
+          "column": "title"
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_ct564suocgt6n84vcbp0",
+  "parent": "mig_ct51ssmocgt6n84vcaog",
+  "schema": "public",
+  "startedAt": "2024-11-30T00:55:15.838958Z"
+}
