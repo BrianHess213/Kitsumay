@@ -1,13 +1,11 @@
 'use client'
-
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 
 
-const BaseURL = process.env.REACT_APP_BASEURL;
-console.log("!!!!!!!!!!!!!!!!!!!!!API Key:", BaseURL);
+//const baseURL = process.env.REACT_APP_BASEURL;
 
 
 export default function EditorPage() {
@@ -27,7 +25,7 @@ export default function EditorPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${BaseURL}/api/getsave`);
+                const response = await fetch(`/api/getsave`);
                 console.log('Response status:', response.status);
 
                 if (!response.ok) {
@@ -226,7 +224,7 @@ export default function EditorPage() {
             if (data && title && chapter) { // Ensure all fields are filled
                 console.log('Publishing...', { data, title, chapter }); // Log the data
                 try {
-                    const response = await axios.post(`${BaseURL}/api/saveeditor`, {
+                    const response = await axios.post(`/api/saveeditor`, {
                         body: data,
                         title: title,
                         chapter: chapter,
@@ -254,7 +252,7 @@ export default function EditorPage() {
     const RetrieveChapter = async (ChapterID) => {
         if (ChapterID) {
             try {
-                const response = await axios.post(`${BaseURL}/api/getchapter`, {
+                const response = await axios.post(`/api/getchapter`, {
                     id: ChapterID,
                 }, {
                     headers: {
@@ -281,7 +279,7 @@ export default function EditorPage() {
 // Used to refresh chapter that have been added or deleted without refreshing the entire page
     const RefreshChapter = async () => {
 
-        const response = await fetch(`${BaseURL}/api/getsave`);
+        const response = await fetch(`/api/getsave`);
         console.log('Response status:', response.status);
 
         if (!response.ok) {
