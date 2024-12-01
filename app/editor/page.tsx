@@ -5,14 +5,12 @@ import { toast } from 'react-hot-toast';
 
 
 
-//const baseURL = process.env.REACT_APP_BASEURL;
-
-
 export default function EditorPage() {
     const editorInstance = useRef(null); // Holds a reference to EditorJS so no other instances spawn
     const [initialData, setInitialData] = useState({ blocks: [] }); // Initialize with empty data
     const [chapterData, setChapterData] = useState(null); // State to hold and drill down for chapter to be initialized
     const [recordIDs, setRecordIDs] = useState([]); // State to hold the recordID to be able to switch between chapters
+    const [chapterIDs, setChapterIDs] = useState(null); // State that Captures RecordID ealier for update or creating new records
     const [loading, setLoading] = useState(true); // State to hold if the loading is active or not
     const [error, setError] = useState(null); // State to hold the error on the initial state
     const [saving, setSaving] = useState(false); // State to hold a reference for the autosaving
@@ -21,7 +19,15 @@ export default function EditorPage() {
     const [title, setTitle] = useState(null); // State to pull the title data and pull into the title field
     const [chapter, setChapter] = useState(null); // State to pull the chapter data and pull into the chapter field
 
-// Grabs the chapter data and loads / sets the data for the chapters to be loaded.
+    // Function to confirm delete action using alert
+    const confirmDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete this chapter? Once deleted, it cannot be recovered!")) {
+            DeleteChapter(id);
+        }
+    };
+
+
+    // Grabs the chapter data and loads / sets the data for the chapters to be loaded.
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -37,7 +43,8 @@ export default function EditorPage() {
                 if (data.length > 0) {
                     const retrieveChapters = data.map(block => block);
                     setRecordIDs(retrieveChapters);
-                    console.log('Loaded chapters:', retrieveChapters); // Log what you’re storing in recordIDs
+                    setChapterIDs(retrieveChapters[0].xata_id)
+                    
                 } else {
                     console.log('No valid data returned.'); // Handling case with no data
                 }
@@ -51,7 +58,7 @@ export default function EditorPage() {
         fetchData();
     }, []);
 
-// Holds the imports and tools for editorJS
+    // Holds the imports and tools for editorJS
     useEffect(() => {
         if (!loading && initialData) { // Ensure editor initializes after data is loaded
             const initializeEditor = async (initialData: null) => {
@@ -198,13 +205,14 @@ export default function EditorPage() {
     useEffect(() => {
         if (chapterData) {
             setInitialData(chapterData);
-            console.log("Getting ChapterData??????????????????", chapterData)
         }
     }, [chapterData]);
 
 
 
-// Handles the save data for Local Stoarge 
+
+
+    // Handles the save data for Local Stoarge 
     const handleSaveToLocal = () => {
         if (editorInstance.current) {
             editorInstance.current.save().then((data) => {
@@ -217,38 +225,59 @@ export default function EditorPage() {
             });
         }
     };
-// Handles the data when the Publish button is pressed
+
+    // Handles the data when the Publish button is pressed
     const handlePublish = async () => {
         if (editorInstance.current) {
             const data = await editorInstance.current.save();
-            if (data && title && chapter) { // Ensure all fields are filled
-                console.log('Publishing...', { data, title, chapter }); // Log the data
+            if (data && title && chapter && chapterIDs) { // Ensure all fields are filled
+                console.log('Publishing...', { data, title, chapter, chapterIDs }); // Log the data
                 try {
                     const response = await axios.post(`/api/saveeditor`, {
                         body: data,
                         title: title,
                         chapter: chapter,
+                        xata_id: chapterIDs,
                     }, {
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     });
+
+                      // Accessing response data from Axios
+                    const result = response.data;
+                   
                     if (response.status === 200) {
-                        toast.success('Article Published!');
+
+                      if (result.action === 'updated'){
+                        toast.success('Article successfully updated!');
+
+                      } else if (result.action === 'created'){
+                        toast.success('Article successfully created!');
+
+                      } else if ( result.action === 'exist'){
+                        toast.error('Nothing to update!');
+
+                      }
+                        setChapterIDs(chapterIDs);
+                        RefreshChapter();
                         localStorage.removeItem('editorData');
+
                     } else {
-                        toast.error('Error: Article Was Not Saved!');
+                        toast.error('Error: Article Was Not Saved or Updated!');
                     }
                 } catch (error) {
                     console.error('Error submitting form:', error);
-                    toast.error('Error: Article Was Not Saved!');
+                    toast.error('Error: Article Was Not Saved or Updated!');
                 }
             } else {
                 toast.error('Data incomplete: Ensure title and chapter are filled out.');
             }
         }
     };
-// Retrieve the chapter and grabs the ID from the chapter selected
+
+
+    // Retrieve the chapter and grabs the ID from the chapter selected
     const RetrieveChapter = async (ChapterID) => {
         if (ChapterID) {
             try {
@@ -265,7 +294,7 @@ export default function EditorPage() {
                     setChapterData(chapterData.editor);  // Set new data to update editor
                     setTitle(chapterData.title);
                     setChapter(chapterData.chapter);
-                    console.log("This is Chapter Data!!!!!!!!!!!!!!!!!", chapterData)
+                    setChapterIDs(chapterData.xata_id);
                     toast.success('Chapter Loaded!');
                 } else {
                     toast.error('Error: Chapter was not loaded!');
@@ -276,7 +305,35 @@ export default function EditorPage() {
             }
         }
     };
-// Used to refresh chapter that have been added or deleted without refreshing the entire page
+
+    // Deletes chapters
+    const DeleteChapter = async (ChapterID) => {
+        if (ChapterID) {
+            try {
+                const response = await axios.post(`/api/deletechapter`, {
+                    id: ChapterID,
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 200) {
+
+                    toast.success('Chapter Deleted!');
+                    RefreshChapter();
+
+                } else {
+                    toast.error('Error: Chapter was not Deleted!');
+                }
+            } catch (error) {
+                console.error('Error fetching chapter:', error);
+                toast.error('Error: Chapter was not Deleted!');
+            }
+        }
+    };
+
+    // Used to refresh chapter that have been added or deleted without refreshing the entire page
     const RefreshChapter = async () => {
 
         const response = await fetch(`/api/getsave`);
@@ -291,12 +348,13 @@ export default function EditorPage() {
         if (data.length > 0) {
             const retrieveChapters = data.map(block => block);
             setRecordIDs(retrieveChapters);
-            console.log('Loaded chapters:', retrieveChapters); // Log what you’re storing in recordIDs
+            setChapterIDs(retrieveChapters[retrieveChapters.length - 1].xata_id)
         } else {
             console.log('No valid data returned.'); // Handling case with no data
         }
 
     };
+
 
     // This useEffect handles the Debounce for keyboard to trigger autosaving to local stoarge
     useEffect(() => {
@@ -343,17 +401,14 @@ export default function EditorPage() {
 
     const displayText = saving && countdown <= 5 ? `AutoSaving in ${countdown}...` : 'Save';
 
-
-
-// Handles the loading when the page first launches
+    // Handles the loading when the page first launches
     if (loading) {
         return <div className='flex justify-center items-center h-screen text-2xl'>Loading...</div>;
     }
-// Handles and displays the error if page can't be loaded
+    // Handles and displays the error if page can't be loaded
     if (error) {
         return <div className='flex justify-center items-center h-screen text-2xl'>Error loading data: {error.message}</div>;
     }
-
 
     return (
         <main className='grid grid-cols-[1fr_4fr_1fr]'>
@@ -366,19 +421,19 @@ export default function EditorPage() {
 
                     <div className='bg-gray-800 p-4 h-60 rounded shadow'>
                         <p className='text-sm'>Save Button:</p>
-                        <p className='text-sm' >The save button will only save document to local stoarge if the local stoarge is deleted you will lose your saved data it is only ment for if you need to step a way and wanted to come back in a short amount of time but as long as your local stoarge is not deleted it can stay there for a long time it does not expire</p>
+                        <p className='text-sm' >The save button will only save document to local stoarge if the local stoarge is deleted you will lose your saved data it is only ment for if you need to step a way and wanted to come back in a short amount of time but as long as your local stoarge is not deleted it can stay there for a long time it does not expire unless you publish it</p>
                     </div>
 
                     <div className='bg-gray-800 p-4 rounded shadow'>
                         <p className='text-sm' >Publish Button:</p>
-                        <p className='text-sm' >The Publish button saves to a Database can cant be deleted yet. But currently I have made a way yet for you to retirve work that has been published time so it can only be used once I know pretty usless that why there is a save button but eventually the publish button will work just like its suppost to where you can call back different chapters and edit them and publish them again just not right now </p>
+                        <p className='text-sm' >The Publish button saves to a Database</p>
                     </div>
 
                 </div>
 
             </aside>
 
-{/* Second Section ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+            {/* Second Section ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
 
             <div>
                 <div className='flex justify-end pr-14 pt-10'>
@@ -396,7 +451,7 @@ export default function EditorPage() {
 
 
                 <h1 className='flex justify-center text-3xl pt-8 text-white'>Editor - Experimental</h1>
-                <p className='flex justify-center pb-8 px-4 text-white text-center'>Currently a work in progress and does not include all features planned to be added. You can save it to your Browser but if you delete your brower history that information will be lost</p>
+                <p className='flex justify-center pb-8 px-4 text-white text-center'>Currently a work in progress and does not include all features planned to be added.</p>
                 <p className='flex justify-center pb-8 px-4 text-white text-center'>ALL DATA WILL BE DELETED AS I AM STILL WORKING ON THE SCHEMA AND ON THE DATABASE SO USE AT YOUR OWN RISK!</p>
 
                 <div className='flex justify-center pb-8 '>
@@ -416,7 +471,7 @@ export default function EditorPage() {
                 </div>
             </div>
 
-{/* Third Section ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+            {/* Third Section ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
 
             <aside className='w-full h-screen'>
                 <h2 className='text-center my-5 text-xl'>Chapters</h2>
@@ -424,24 +479,27 @@ export default function EditorPage() {
                 <div className='p-4 rounded shadow bg-gray-800'>
                     {recordIDs.map((records, index) => (
                         <main key={index}>
+
                             <div className='w-full h-1/5 text-center py-5'>
-                                <p className='text-sm'>Title</p>
-                                <p className='text-sm pb-2'>{records.title}</p>
-                                <p className='text-sm '>Chapter</p>
-                                <p className='text-sm pb-2'>{records.chapter}</p>
-                                <div className='pt-5'>
-                                    <button onClick={() => RetrieveChapter(records.xata_id)} className='bg-sky-400 w-1/2 h-1/4 rounded-lg hover:bg-sky-600 text-black p-2'>Load Chapter</button>
+
+                                <div className='bg-gray-900'>
+                                    <div className='flex justify-end pr-5 pt-2'>
+                                        <button onClick={() => confirmDelete(records.xata_id)} className='hover:text-red-500 bg-none w-6'>X</button>
+                                    </div>
+                                    <p className='text-sm'>Title</p>
+                                    <p className='text-sm pb-2'>{records.title}</p>
+                                    <p className='text-sm '>Chapter</p>
+                                    <p className='text-sm pb-2'>{records.chapter}</p>
+                                    <div className='py-5'>
+                                        <button onClick={() => RetrieveChapter(records.xata_id)} className='bg-sky-400 w-1/2 h-1/4 rounded-lg hover:bg-sky-600 text-black p-2'>Load Chapter</button>
+                                    </div>
                                 </div>
+
                             </div>
 
                         </main>
                     ))}
                 </div>
-
-                <div className='flex justify-center py-5'>
-                    <button onClick={RefreshChapter} className='bg-sky-400 rounded-lg hover:bg-sky-600 text-black p-2'>Refresh Chapters</button>
-                </div>
-
             </aside>
         </main>
     );
