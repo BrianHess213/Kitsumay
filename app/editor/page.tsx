@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 'use client'
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
@@ -13,8 +15,8 @@ export default function EditorPage() {
     const [chapterIDs, setChapterIDs] = useState(null); // State that Captures RecordID ealier for update or creating new records
     const [loading, setLoading] = useState(true); // State to hold if the loading is active or not
     const [error, setError] = useState(null); // State to hold the error on the initial state
-    const [saving, setSaving] = useState(false); // State to hold a reference for the autosaving
-    const [countdown, setCountdown] = useState(null); // State to hold a reference to the countdown for autosave
+    //const [saving, setSaving] = useState(false); // State to hold a reference for the autosaving
+    //const [countdown, setCountdown] = useState(null); // State to hold a reference to the countdown for autosave
     const [timer, setTimer] = useState(null); // State to hold reference to timeout for autosave
     const [title, setTitle] = useState(null); // State to pull the title data and pull into the title field
     const [chapter, setChapter] = useState(null); // State to pull the chapter data and pull into the chapter field
@@ -43,7 +45,8 @@ export default function EditorPage() {
                 if (data.length > 0) {
                     const retrieveChapters = data.map(block => block);
                     setRecordIDs(retrieveChapters);
-                    setChapterIDs(retrieveChapters[0].xata_id)
+                    setChapterIDs(retrieveChapters[0].id);
+
                     
                 } else {
                     console.log('No valid data returned.'); // Handling case with no data
@@ -213,18 +216,18 @@ export default function EditorPage() {
 
 
     // Handles the save data for Local Stoarge 
-    const handleSaveToLocal = () => {
-        if (editorInstance.current) {
-            editorInstance.current.save().then((data) => {
-                setInitialData(data);
-                localStorage.setItem('editorData', JSON.stringify(data));
-                toast.success('Saved Locally!');
-            }).catch((error) => {
-                console.log('Saving failed:', error);
-                toast.error('Error: Was Not Saved!');
-            });
-        }
-    };
+    // const handleSaveToLocal = () => {
+    //     if (editorInstance.current) {
+    //         editorInstance.current.save().then((data) => {
+    //             setInitialData(data);
+    //             localStorage.setItem('editorData', JSON.stringify(data));
+    //             toast.success('Saved Locally!');
+    //         }).catch((error) => {
+    //             console.log('Saving failed:', error);
+    //             toast.error('Error: Was Not Saved!');
+    //         });
+    //     }
+    // };
 
     // Handles the data when the Publish button is pressed
     const handlePublish = async () => {
@@ -237,7 +240,7 @@ export default function EditorPage() {
                         body: data,
                         title: title,
                         chapter: chapter,
-                        xata_id: chapterIDs,
+                        id: chapterIDs,
                     }, {
                         headers: {
                             'Content-Type': 'application/json'
@@ -294,7 +297,7 @@ export default function EditorPage() {
                     setChapterData(chapterData.editor);  // Set new data to update editor
                     setTitle(chapterData.title);
                     setChapter(chapterData.chapter);
-                    setChapterIDs(chapterData.xata_id);
+                    setChapterIDs(chapterData.id);
                     toast.success('Chapter Loaded!');
                 } else {
                     toast.error('Error: Chapter was not loaded!');
@@ -348,7 +351,7 @@ export default function EditorPage() {
         if (data.length > 0) {
             const retrieveChapters = data.map(block => block);
             setRecordIDs(retrieveChapters);
-            setChapterIDs(retrieveChapters[retrieveChapters.length - 1].xata_id)
+            setChapterIDs(retrieveChapters[retrieveChapters.length - 1].id)
         } else {
             console.log('No valid data returned.'); // Handling case with no data
         }
@@ -379,7 +382,7 @@ export default function EditorPage() {
                             clearInterval(countdownInterval);
                             setSaving(false);
                             setCountdown(null); // Reset countdown
-                            handleSaveToLocal(); // Call the function here when countdown finishes
+                            //handleSaveToLocal(); // Call the function here when countdown finishes
                             return 0;
                         }
                         return prev - 1;
@@ -399,7 +402,7 @@ export default function EditorPage() {
         };
     }, [timer]);
 
-    const displayText = saving && countdown <= 5 ? `AutoSaving in ${countdown}...` : 'Save';
+    //const displayText = saving && countdown <= 5 ? `AutoSaving in ${countdown}...` : 'Save';
 
     // Handles the loading when the page first launches
     if (loading) {
@@ -438,13 +441,13 @@ export default function EditorPage() {
             <div>
                 <div className='flex justify-end pr-14 pt-10'>
                     <div className='pr-5'>
-                        <button onClick={handleSaveToLocal} className='bg-sky-400 rounded-lg text-black p-2 px-5 hover:bg-sky-600'>
+                        {/* <button onClick={handleSaveToLocal} className='bg-sky-400 rounded-lg text-black p-2 px-5 hover:bg-sky-600'>
                             <div>
                                 <p className='flex justify-center'>
                                     {displayText}
                                 </p>
                             </div>
-                        </button>
+                        </button> */}
                     </div>
                     <button onClick={handlePublish} className='bg-sky-400 rounded-lg text-black p-2 px-5 hover:bg-sky-600' >Publish</button>
                 </div>
@@ -484,14 +487,14 @@ export default function EditorPage() {
 
                                 <div className='bg-gray-900'>
                                     <div className='flex justify-end pr-5 pt-2'>
-                                        <button onClick={() => confirmDelete(records.xata_id)} className='hover:text-red-500 bg-none w-6'>X</button>
+                                        <button onClick={() => confirmDelete(records.id)} className='hover:text-red-500 bg-none w-6'>X</button>
                                     </div>
                                     <p className='text-sm'>Title</p>
                                     <p className='text-sm pb-2'>{records.title}</p>
                                     <p className='text-sm '>Chapter</p>
                                     <p className='text-sm pb-2'>{records.chapter}</p>
                                     <div className='py-5'>
-                                        <button onClick={() => RetrieveChapter(records.xata_id)} className='bg-sky-400 w-1/2 h-1/4 rounded-lg hover:bg-sky-600 text-black p-2'>Load Chapter</button>
+                                        <button onClick={() => RetrieveChapter(records.id)} className='bg-sky-400 w-1/2 h-1/4 rounded-lg hover:bg-sky-600 text-black p-2'>Load Chapter</button>
                                     </div>
                                 </div>
 

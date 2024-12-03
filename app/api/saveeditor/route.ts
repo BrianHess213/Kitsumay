@@ -5,13 +5,13 @@ export async function POST(request) {
   try {
     const requestData = await request.json();
 
-    const { body, title, chapter, xata_id } = requestData;
+    const { body, title, chapter, id } = requestData;
 
-    const getRecord = await xata.db.book.read(xata_id);
+    const getRecord = await xata.db.books.read(id);
 
-    if (xata_id === getRecord.xata_id && title === getRecord.title && chapter === getRecord.chapter && body !== getRecord.editor){
+    if (id === getRecord?.id && title === getRecord?.title && chapter === getRecord?.chapter && body !== getRecord?.editor){
 
-      await xata.db.book.update(xata_id, {
+      await xata.db.books.update(id, {
         editor: body,
         title: title,
         chapter: chapter,
@@ -22,7 +22,7 @@ export async function POST(request) {
         headers: { 'Content-Type': 'application/json' }
       });
 
-    }else if (xata_id === getRecord.xata_id && title === getRecord.title && chapter === getRecord.chapter && body === getRecord.editor){
+    }else if (id === getRecord?.id && title === getRecord?.title && chapter === getRecord?.chapter && body === getRecord?.editor){
 
       return new Response(JSON.stringify({message: "Nothing to update!", action: "exist"}), {
         status: 200,
@@ -31,7 +31,7 @@ export async function POST(request) {
 
     }else{
 
-      await xata.db.book.create({
+      await xata.db.books.create({
         editor: body,
         title: title,
         chapter: chapter,

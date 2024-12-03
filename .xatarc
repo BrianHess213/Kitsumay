@@ -1,5 +1,5 @@
 {
-  "databaseURL": "https://Brian-Hess-s-workspace-78s9i2.us-west-2.xata.sh/db/Kitsumay",
+  "databaseURL": "https://Brian-Hess-s-workspace-78s9i2.us-west-2.xata.sh/db/kitsumay",
   "codegen": {
     "output": "src/xata.ts"
   }

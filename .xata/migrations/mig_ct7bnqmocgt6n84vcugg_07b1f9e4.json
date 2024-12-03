@@ -1,0 +1,16 @@
+{
+  "id": "mig_ct7bnqmocgt6n84vcugg",
+  "parentID": "mig_ct7bnnuocgt6n84vcufg",
+  "checksum": "1:07b1f9e4f06f784e22a784aa41da57808388e0b0ac46aad68c9dae1aa2ca280a",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "title",
+          "type": "text"
+        },
+        "table": "books"
+      }
+    }
+  ]
+}

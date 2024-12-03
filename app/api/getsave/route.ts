@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
         const xata = getXataClient();
 
         // Fetch data from your desired table or collection
-        const data = await xata.db.book.getAll(); // Adjust with your specific query
+        const data = await xata.db.books.getAll(); // Adjust with your specific query
 
         // Return the data with a status of 200
         return NextResponse.json(data, { status: 200 });

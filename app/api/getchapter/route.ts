@@ -4,7 +4,7 @@ const xata = getXataClient();
 export async function POST(request) {
   try {
     const { id } = await request.json(); // Destructure id from parsed JSON
-    const record = await xata.db.book.read(id); // Fetch the record using the id
+    const record = await xata.db.books.read(id); // Fetch the record using the id
     console.log('Fetched Record:', record);
 
     return new Response(JSON.stringify(record), {  // Return the record
