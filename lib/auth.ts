@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextAuthOptions, SessionStrategy } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import { XataAdapter } from '@next-auth/xata-adapter';
